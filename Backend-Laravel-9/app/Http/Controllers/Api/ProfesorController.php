@@ -97,7 +97,7 @@ class profesorController extends Controller
 
     public function updateProfesores(Request $request, $id){
         $validator = Validator::make($request->all(), [ 
-            'documento' => 'required|digits:10',
+            'documento' => 'required|string|max:10',
             'nombres' => 'required|string|max:191',
             'telefono' => 'required|digits:10',
             'email' => 'required|email|max:191',

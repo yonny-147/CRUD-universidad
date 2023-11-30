@@ -1,14 +1,14 @@
 <template>
 
   <div class="container mt-5">
-    <RouterLink to="/listadoProfesores" aria-current="page" class="btn btn-primary mb-3">Ver profesores</RouterLink>
+    <RouterLink to="/listadoEstudiantes" aria-current="page" class="btn btn-primary mb-3">Ver profesores</RouterLink>
     <div class="card">
         <div class="card-header">
-          <h3>Registrar Profesor</h3>
+          <h3>Editar Profesor</h3>
         </div>
         <div class="card-body">
           <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
-            <li class="mb-0 ms-3" v-for="(error, indexProfesores) in this.errorList" :key="indexProfesores">
+            <li class="mb-0 ms-3" v-for="(error, index) in this.errorList" :key="index">
               {{ error[0] }}
             </li>
           </ul>
@@ -38,10 +38,10 @@
             <input class="form-control" placeholder="Digite la ciudad" v-model="model.profesor.ciudad"/>
           </div>
           <div class="mb-3">
-            <button type="button" class="btn btn-primary" @click="RegistrarProfesor">Registrar</button>
+            <button type="button" class="btn btn-primary" @click="EditarProfesor">Actualizar</button>
           </div>
-        </div>
     </div>
+  </div>
   </div> 
 </template>
 
@@ -49,9 +49,10 @@
 import axios from 'axios';
 
   export default {
-    name: 'profesores',
+    name: 'ProfesoresEditar',
     data(){
       return {
+        profesor_id: '',
         errorList : '',
         model:{
           profesor:{
@@ -65,36 +66,46 @@ import axios from 'axios';
         }
       }
     },
+    mounted(){
+      this.profesor_id = this.$route.params.id
+      this.getProfesoresData(this.$route.params.id)
+    },
     methods: {
       
-      RegistrarProfesor(){
+      getProfesoresData(profesor_id){
+        axios.get(`http://127.0.0.1:8000/api/profesores/${profesor_id}/edit`)
+        .then(res => {
+          console.log(res.data.profesor)
+          this.model.profesor = res.data.profesor
+        })         
+        .catch(function (error) {
+          if (error.response) {
+            if(error.response.status = 404){
+              alert(error.response.data.message)
+            }
+          }
+        })
+      },
 
+      EditarProfesor(){
+        
         let mythis = this
-        axios.post('http://127.0.0.1:8000/api/profesores', this.model.profesor)
+        axios.put(`http://127.0.0.1:8000/api/profesores/${this.profesor_id}/edit`, this.model.profesor)
         .then(res => {
 
           console.log(res.data)
           alert(res.data.message)
 
-          this.model.profesor = {
-            documento: '',
-            nombres: '',
-            telefono: '',
-            email: '',
-            direccion: '',
-            ciudad: ''
-          }
           this.errorList = ''
         })
         .catch(function (error) {
           if (error.response) {
             if(error.response.status = 422){
               mythis.errorList = error.response.data.errors
-            }else if (error.request) {
-                  console.log(error.request)
-              } else {
-                console.log('Error', error.message)
-              }
+            }
+            if (error.response.data.status = 404) {
+              alert(response.data.message)
+            }
           }
         })
       }

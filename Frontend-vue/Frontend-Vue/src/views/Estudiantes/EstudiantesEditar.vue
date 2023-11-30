@@ -4,7 +4,7 @@
       <RouterLink to="/listadoEstudiantes" aria-current="page" class="btn btn-primary mb-3">Ver estudiantes</RouterLink>
       <div class="card">
           <div class="card-header">
-            <h3>Registrar Estudiante</h3>
+            <h3>Editar Estudiante</h3>
           </div>
           <div class="card-body">
             <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
@@ -42,7 +42,7 @@
               <input class="form-control" placeholder="Digite el semestre" v-model="model.estudiante.semestre"/>
             </div>
             <div class="mb-3">
-              <button type="button" class="btn btn-primary" @click="EditarEstudiante">Editar</button>
+              <button type="button" class="btn btn-primary" @click="EditarEstudiante">Actualizar</button>
             </div>
       </div>
     </div>
@@ -56,6 +56,7 @@
       name: 'EstudiantesEditar',
       data(){
         return {
+          estudiante_id: '',
           errorList : '',
           model:{
             estudiante:{
@@ -71,47 +72,45 @@
         }
       },
       mounted(){
-        this.getDataEstudiantes(this.$route.params.id)
+        this.estudiante_id = this.$route.params.id
+        this.getEstudiantesData(this.$route.params.id)
       },
       methods: {
         
         getEstudiantesData(estudiante_id){
-          axios.get(`http://localhost:${estudiante_id}/edit`)
+          axios.get(`http://127.0.0.1:8000/api/estudiantes/${estudiante_id}/edit`)
           .then(res => {
-            console.log(res)
+            console.log(res.data.estudiante)
+            this.model.estudiante = res.data.estudiante
+          })         
+          .catch(function (error) {
+            if (error.response) {
+              if(error.response.status = 404){
+                alert(error.response.data.message)
+              }
+            }
           })
-          .catch(err => {});
         },
 
         EditarEstudiante(){
-  
+          
           let mythis = this
-          axios.post('http://127.0.0.1:8000/api/estudiantes', this.model.estudiante)
+          axios.put(`http://127.0.0.1:8000/api/estudiantes/${this.estudiante_id}/edit`, this.model.estudiante)
           .then(res => {
   
             console.log(res.data)
             alert(res.data.message)
   
-            this.model.estudiante = {
-              documento: '',
-              nombres: '',
-              telefono: '',
-              email: '',
-              direccion: '',
-              ciudad: '',
-              semestre: ''
-            }
             this.errorList = ''
           })
           .catch(function (error) {
             if (error.response) {
               if(error.response.status = 422){
                 mythis.errorList = error.response.data.errors
-              }else if (error.request) {
-                  console.log(error.request)
-                } else {
-                  console.log('Error', error.message)
-                }
+              }
+              if (error.response.data.status = 404) {
+                alert(response.data.message)
+              }
             }
           })
         }

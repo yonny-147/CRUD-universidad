@@ -1,13 +1,12 @@
 <template>
 
     <div class="container mt-5">
-    <RouterLink to="/listadoAsignaturas" aria-current="page" class="btn btn-primary mb-3">Ver asignaturas</RouterLink>
+      <RouterLink to="/listadoAsignaturas" aria-current="page" class="btn btn-primary mb-3">Ver asignaturas</RouterLink>
       <div class="card">
           <div class="card-header">
-            <h3>Registrar Asignatura</h3>
+            <h3>Editar Asignatura</h3>
           </div>
           <div class="card-body">
-  
             <ul class="alert alert-warning" v-if="Object.keys(this.errorList).length > 0">
               <li class="mb-0 ms-3" v-for="(error, index) in this.errorList" :key="index">
                 {{ error[0] }}
@@ -35,7 +34,7 @@
                 <option value="Obligatioria">Obligatioria</option>
             </select>
             <div class="mb-3 mt-3">
-              <button type="button" class="btn btn-primary" @click="RegistrarAsignatura">Registrar</button>
+              <button type="button" class="btn btn-primary" @click="EditarEstudiante">Actualizar</button>
             </div>
       </div>
     </div>
@@ -46,9 +45,10 @@
   import axios from 'axios';
   
     export default {
-      name: 'asignaturas',
+      name: 'AsignaturasEditar',
       data(){
         return {
+          asignatura_id: '',
           errorList : '',
           model:{
             asignatura:{
@@ -61,35 +61,46 @@
           }
         }
       },
+      mounted(){
+        this.asignatura_id = this.$route.params.id
+        this.getAsignaturasData(this.$route.params.id)
+      },
       methods: {
         
-        RegistrarAsignatura(){
-  
+        getAsignaturasData(asignatura_id){
+          axios.get(`http://127.0.0.1:8000/api/asignaturas/${asignatura_id}/edit`)
+          .then(res => {
+            console.log(res.data.asignatura)
+            this.model.asignatura = res.data.asignatura
+          })         
+          .catch(function (error) {
+            if (error.response) {
+              if(error.response.status = 404){
+                alert(error.response.data.message)
+              }
+            }
+          })
+        },
+
+        EditarEstudiante(){
+          
           let mythis = this
-          axios.post('http://127.0.0.1:8000/api/asignaturas', this.model.asignatura)
+          axios.put(`http://127.0.0.1:8000/api/asignaturas/${this.asignatura_id}/edit`, this.model.asignatura)
           .then(res => {
   
             console.log(res.data)
             alert(res.data.message)
   
-            this.model.asignatura = {
-                nombre: '',
-                descripcion: '',
-                creditos: '',
-                area: '',
-                participacion: ''
-            }
             this.errorList = ''
           })
           .catch(function (error) {
             if (error.response) {
               if(error.response.status = 422){
                 mythis.errorList = error.response.data.errors
-              }else if (error.request) {
-                  console.log(error.request)
-                } else {
-                  console.log('Error', error.message)
-                }
+              }
+              if (error.response.data.status = 404) {
+                alert(response.data.message)
+              }
             }
           })
         }

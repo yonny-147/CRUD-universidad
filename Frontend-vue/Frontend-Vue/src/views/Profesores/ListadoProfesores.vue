@@ -2,7 +2,7 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header text-center">
-                <h2>Estudiantes registrados</h2>
+                <h2>profesors registrados</h2>
             </div>
             <div class="card-boy">
                 <table class="table table-bordered text-center">
@@ -14,21 +14,19 @@
                             <th>Email</th>
                             <th>Direccion</th>
                             <th>Ciudad</th>
-                            <th>Semestre</th>
                         </tr>
                     </thead>
-                    <tbody v-if="this.estudiantes.length > 0">
-                        <tr v-for="(estudiante, index) in this.estudiantes" :key="index">
-                            <td>{{ estudiante.documento }}</td>
-                            <td>{{ estudiante.nombres }}</td>
-                            <td>{{ estudiante.telefono }}</td>
-                            <td>{{ estudiante.email }}</td>
-                            <td>{{ estudiante.direccion }}</td>
-                            <td>{{ estudiante.ciudad }}</td>
-                            <td>{{ estudiante.semestre }}</td>
+                    <tbody v-if="this.profesores.length > 0">
+                        <tr v-for="(profesor, index) in this.profesores" :key="index">
+                            <td>{{ profesor.documento }}</td>
+                            <td>{{ profesor.nombres }}</td>
+                            <td>{{ profesor.telefono }}</td>
+                            <td>{{ profesor.email }}</td>
+                            <td>{{ profesor.direccion }}</td>
+                            <td>{{ profesor.ciudad }}</td>
                             <td>
-                                <RouterLink :to="{ path: 'estudiantes/'+estudiante.id+'/edit' }" class="btn btn-success">Editar</RouterLink>
-                                <button type="button" @click="deleteEstudiante(estudiante.id)" class="btn btn-danger">Borrar</button>
+                                <RouterLink :to="{ path: 'profesores/'+profesor.id+'/edit' }" class="btn btn-success">Editar</RouterLink>
+                                <button type="button" @click="deleteProfesor(profesor.id)" class="btn btn-danger">Borrar</button>
                             </td>
                         </tr>
                     </tbody>
@@ -47,29 +45,29 @@
 import axios from 'axios';
 
 export default {
-    name: 'estudiantes',
+    name: 'profesores',
     data() {
         return {
-            estudiantes: []
+            profesores: []
         }
     },
     mounted() {
-        this.getEstudiantes()
+        this.getProfesores()
     },
     methods: {
-        getEstudiantes() {
-            axios.get('http://127.0.0.1:8000/api/estudiantes')
+        getProfesores() {
+            axios.get('http://127.0.0.1:8000/api/profesores')
                 .then(res => {
-                    this.estudiantes = res.data.estudiantes
+                    this.profesores = res.data.profesores
                 })
         },
 
-        deleteEstudiante(estudiante_id){
-            if(confirm('¿Estás seguro que quieres borrar este estudiante?')){
-                axios.delete(`http://127.0.0.1:8000/api/estudiantes/${estudiante_id}/delete`).
+        deleteProfesor(profesor_id){
+            if(confirm('¿Estás seguro que quieres borrar este profesor?')){
+                axios.delete(`http://127.0.0.1:8000/api/profesores/${profesor_id}/delete`).
                 then(res => {
                     alert(res.data.message)
-                    this.getEstudiantes()
+                    this.getProfesores()
                 })          
                 .catch(function (error) {
                     if (error.response) {
